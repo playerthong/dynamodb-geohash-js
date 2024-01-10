@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "aws-sdk": "^2.48.0",
-    "dynamodb-geo": "*",
+    "dotenv": "^16.3.1",
+    "dynamodb-geo": "github:playerthong/dynamodb-geohash-js",
+    "env-cmd": "^10.1.0",
     "uuid": "^3.0.1"
   }
 }
