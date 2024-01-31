@@ -258,3 +258,4 @@ The Geohash used in this library is roughly centimeter precision. Therefore, the
 [dynamodb-query]: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
 [hashkeylength-tests]: https://github.com/rh389/dynamodb-geo.js/blob/master/test/integration/hashKeyLength.ts
 [choosing-hashkeylength]: #choosing-a-hashkeylength-optimising-for-performance-and-cost
+https://gojekfarm.github.io/s2-calc/

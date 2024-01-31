@@ -50,12 +50,12 @@ export class DynamoDBManager {
    *
    * @return The query result.
    */
-  public async queryGeohash(queryInput: DynamoDB.QueryInput | undefined, hashKey: Long, range: GeohashRange): Promise<DynamoDB.QueryOutput[]> {
-    const queryOutputs: DynamoDB.QueryOutput[] = [];
+  public async queryGeohash(queryInput: DynamoDB.QueryInput | undefined, hashKey: Long, range: GeohashRange, queryByAttributeInput?: QueryByAttributeInput): Promise<DynamoDB.QueryOutput[]> {
+    const queryOutputs: DynamoDB.QueryOutput[] = []
 
     const nextQuery = async (lastEvaluatedKey: DynamoDB.Key = null) => {
       const keyConditions: { [key: string]: DynamoDB.Condition } = {};
-
+      
       keyConditions[this.config.hashKeyAttributeName] = {
         ComparisonOperator: "EQ",
         AttributeValueList: [{ N: hashKey.toString(10) }]
@@ -64,21 +64,29 @@ export class DynamoDBManager {
       const minRange: DynamoDB.AttributeValue = { N: range.rangeMin.toString(10) };
       const maxRange: DynamoDB.AttributeValue = { N: range.rangeMax.toString(10) };
 
-      keyConditions[this.config.geohashAttributeName] = {
-        ComparisonOperator: "BETWEEN",
-        AttributeValueList: [minRange, maxRange]
-      };
-
       const defaults = {
         TableName: this.config.tableName,
         KeyConditions: keyConditions,
-        IndexName: this.config.geohashIndexName,
         ConsistentRead: this.config.consistentRead,
         ReturnConsumedCapacity: "TOTAL",
-        ExclusiveStartKey: lastEvaluatedKey
+        ExclusiveStartKey: lastEvaluatedKey,
+        FilterExpression: queryByAttributeInput?
+        "geohash BETWEEN :minRange AND :maxRange AND " + queryByAttributeInput.filterExpression: 
+        "geohash BETWEEN :minRange AND :maxRange",
+        ExpressionAttributeValues:queryByAttributeInput?{
+          ...{
+            ':minRange': minRange,
+            ':maxRange': maxRange,
+            },
+          ...queryByAttributeInput.expressionAttributeValues
+        }
+        :{
+          ':minRange': minRange,
+          ':maxRange': maxRange,
+          }
       };
-
-      const queryOutput = await this.config.dynamoDBClient.query({ ...defaults, ...queryInput }).promise();
+      
+      const queryOutput = await this.config.dynamoDBClient.query({ ...defaults, ...queryInput}).promise();
       queryOutputs.push(queryOutput);
       if (queryOutput.LastEvaluatedKey) {
         return nextQuery(queryOutput.LastEvaluatedKey);

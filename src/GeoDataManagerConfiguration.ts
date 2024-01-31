@@ -30,7 +30,7 @@ export class GeoDataManagerConfiguration {
   geohashAttributeName: string = "geohash";
   geoJsonAttributeName: string = "geoJson";
 
-  geohashIndexName: string = "geohash-index";
+  // geohashIndexName: string = "geohash-index";
 
   hashKeyLength: number = 2;
 

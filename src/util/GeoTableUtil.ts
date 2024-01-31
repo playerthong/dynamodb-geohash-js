@@ -61,24 +61,24 @@ export class GeoTableUtil {
         { AttributeName: config.rangeKeyAttributeName, AttributeType: 'S' },
         { AttributeName: config.geohashAttributeName, AttributeType: 'N' }
       ],
-      LocalSecondaryIndexes: [
-        {
-          IndexName: config.geohashIndexName,
-          KeySchema: [
-            {
-              KeyType: 'HASH',
-              AttributeName: config.hashKeyAttributeName
-            },
-            {
-              KeyType: 'RANGE',
-              AttributeName: config.geohashAttributeName
-            }
-          ],
-          Projection: {
-            ProjectionType: 'ALL'
-          }
-        }
-      ]
+      // LocalSecondaryIndexes: [
+      //   {
+      //     IndexName: config.geohashIndexName,
+      //     KeySchema: [
+      //       {
+      //         KeyType: 'HASH',
+      //         AttributeName: config.hashKeyAttributeName
+      //       },
+      //       {
+      //         KeyType: 'RANGE',
+      //         AttributeName: config.geohashAttributeName
+      //       }
+      //     ],
+      //     Projection: {
+      //       ProjectionType: 'ALL'
+      //     }
+      //   }
+      // ]
     };
   }
 }
