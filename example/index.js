@@ -1,12 +1,13 @@
+require('dotenv').config();
 const ddbGeo = require('dynamodb-geo');
 const AWS = require('aws-sdk');
 const uuid = require('uuid');
 
 // Set up AWS
 AWS.config.update({
-    accessKeyId: YOUR_AWS_KEY_ID,
-    secretAccessKey: YOUR_AWS_SECRET_ACCESS_KEY,
-    region: YOUR_AWS_REGION
+    accessKeyId: process.env.AWS_KEY_ID || YOUR_AWS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || YOUR_AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION || YOUR_AWS_REGION
 });
 
 // Use a local DB for the example.
@@ -24,77 +25,56 @@ const createTableInput = ddbGeo.GeoTableUtil.getCreateTableRequest(config);
 // Tweak the schema as desired
 createTableInput.ProvisionedThroughput.ReadCapacityUnits = 2;
 
-console.log('Creating table with schema:');
-console.dir(createTableInput, { depth: null });
+const data = require('./capitals.json');
+async function exampleGeoHash(){
+    try {
+        await ddb.createTable(createTableInput).promise();
+        await ddb.waitFor('tableExists', { TableName: config.tableName }).promise();
+        console.log('Table created and ready!');
+    } catch (error) {
+        console.error('Error creating table:', error);
+    }
 
-// Create the table
-ddb.createTable(createTableInput).promise()
-    // Wait for it to become ready
-    .then(function () { return ddb.waitFor('tableExists', { TableName: config.tableName }).promise() })
-    // Load sample data in batches
-    .then(function () {
-        console.log('Loading sample data from capitals.json');
-        const data = require('./capitals.json');
-        const putPointInputs = data.map(function (capital) {
-            return {
-                RangeKeyValue: { S: uuid.v4() }, // Use this to ensure uniqueness of the hash/range pairs.
-                GeoPoint: {
-                    latitude: capital.latitude,
-                    longitude: capital.longitude
-                },
-                PutItemInput: {
-                    Item: {
-                        country: { S: capital.country },
-                        capital: { S: capital.capital }
-                    }
-                }
-            }
-        });
-
-        const BATCH_SIZE = 25;
-        const WAIT_BETWEEN_BATCHES_MS = 1000;
-        var currentBatch = 1;
-
-        function resumeWriting() {
-            if (putPointInputs.length === 0) {
-                return Promise.resolve();
-            }
-            const thisBatch = [];
-            for (var i = 0, itemToAdd = null; i < BATCH_SIZE && (itemToAdd = putPointInputs.shift()); i++) {
-                thisBatch.push(itemToAdd);
-            }
-            console.log('Writing batch ' + (currentBatch++) + '/' + Math.ceil(data.length / BATCH_SIZE));
-            return capitalsManager.batchWritePoints(thisBatch).promise()
-                .then(function () {
-                    return new Promise(function (resolve) {
-                        setInterval(resolve,WAIT_BETWEEN_BATCHES_MS);
-                    });
-                })
-                .then(function () {
-                    return resumeWriting()
-                });
+    const putPointAsync = async (capital) => {
+        const RangeKeyValue = { S: uuid.v4() };
+        const GeoPoint = { latitude: capital.latitude, longitude: capital.longitude };
+        const PutItemInput = {
+            Item: {
+                country: { S: capital.country },
+                capital: { S: capital.capital }
+            },
+        };
+    
+        try {
+            await capitalsManager.putPoint({ RangeKeyValue, GeoPoint, PutItemInput }).promise();
+            console.log(`Successfully added point for ${capital.capital}, ${capital.country}`);
+        } catch (error) {
+            console.error(`Error adding point for ${capital.capital}, ${capital.country}:`, error);
         }
+    };
 
-        return resumeWriting().catch(function (error) {
-            console.warn(error);
-        });
+    await Promise.all(data.map(capital => putPointAsync(capital)));
+
+    const queryRadius = await capitalsManager.queryRadius({
+        RadiusInMeter: 100000,
+        CenterPoint: {
+            latitude: 52.502696567803966,
+            longitude: 13.395568637019005
+        }
     })
-    // Perform a radius query
-    .then(function () {
-        console.log('Querying by radius, looking 100km from Cambridge, UK.');
-        return capitalsManager.queryRadius({
-            RadiusInMeter: 100000,
-            CenterPoint: {
-                latitude: 52.225730,
-                longitude: 0.149593
-            }
-        })
+    console.log(queryRadius)
+
+    const queryRectangle = await capitalsManager.queryRectangle({
+        MinPoint: {
+            latitude: 52.519713,
+            longitude: 13.409506
+        },
+        MaxPoint: {
+            latitude: 52.520408,
+            longitude: 13.410539
+        }
     })
-    // Print the results, an array of DynamoDB.AttributeMaps
-    .then(console.log)
-    // Clean up
-    .then(function() { return ddb.deleteTable({ TableName: config.tableName }).promise() })
-    .catch(console.warn)
-    .then(function () {
-        process.exit(0);
-    });
+    console.log(queryRectangle)
+}
+
+exampleGeoHash()
