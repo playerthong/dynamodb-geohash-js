@@ -26,6 +26,7 @@ import {
   GetPointOutput,
   PutPointInput,
   PutPointOutput,
+  QueryByAttributeInput,
   QueryRadiusInput,
   QueryRectangleInput,
   UpdatePointInput,
