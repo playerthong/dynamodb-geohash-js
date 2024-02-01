@@ -23,6 +23,7 @@ import {
   GetPointOutput,
   PutPointInput,
   PutPointOutput,
+  QueryByAttributeInput,
   UpdatePointInput,
   UpdatePointOutput
 } from "../types";
