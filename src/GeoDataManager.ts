@@ -173,6 +173,18 @@ export class GeoDataManager {
 
   /**
    * <p>
+   * Generate a geohash string from the given GeoPoint.
+   * </p>
+   *
+   * @param geoPoint The GeoPoint from which to generate the geohash.
+   * @returns A geohash string representing the GeoPoint.
+   */
+  public generateGeohash(geoPoint: GeoPoint) {
+    return S2Manager.generateGeohash(geoPoint).toString(10);
+  }
+
+  /**
+   * <p>
    * Query a rectangular area constructed by two points and return all points within the area. Two points need to
    * construct a rectangle from minimum and maximum latitudes and longitudes. If minPoint.getLongitude() >
    * maxPoint.getLongitude(), the rectangle spans the 180 degree longitude line.
