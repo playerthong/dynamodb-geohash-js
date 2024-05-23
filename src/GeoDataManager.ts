@@ -180,6 +180,7 @@ export class GeoDataManager {
    * @returns A geohash string representing the GeoPoint.
    */
   public generateGeohash(geoPoint: GeoPoint) {
+    console.log(geoPoint)
     return S2Manager.generateGeohash(geoPoint).toString(10);
   }
 
