@@ -22,6 +22,7 @@ export class S2Manager {
     const latLng = S2LatLng.fromDegrees(geoPoint.latitude, geoPoint.longitude);
     const cell = S2Cell.fromLatLng(latLng);
     const cellId = cell.id;
+    console.log(cellId.id);
     return cellId.id;
   }
 
