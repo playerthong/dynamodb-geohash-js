@@ -1,6 +1,6 @@
 {
   "name": "dynamodb-geo",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "A javascript port of awslabs/dynamodb-geo, for dynamodb geospatial querying",
   "scripts": {
     "prepublish": "tsc -d",
@@ -15,9 +15,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@types/decimal.js": "^0.0.30",
-    "@types/long": ">=3",
-    "nodes2ts": "^3.0.0",
-    "long": "^5.0.0"
+    "@types/long": "^5.0.0",
+    "nodes2ts": "^3.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.0.0",
