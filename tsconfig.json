@@ -1,13 +1,12 @@
 {
     "compilerOptions": {
-        "esModuleInterop": true,
         "module": "commonjs",
-        "target": "es5",
+        "target": "es2020",
         "noImplicitAny": false,
         "sourceMap": false,
         "outDir": "dist",
         "lib": [
-            "es2015"
+            "es2020"
         ]
     },
     "include": [ "src/**/*" ]
